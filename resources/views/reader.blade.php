@@ -124,7 +124,7 @@
             height:64px; display:flex; align-items:center; justify-content:center; gap:10px;
             border-top:1px solid var(--border); background:var(--bar-bg); flex-shrink:0;
             position: absolute;
-            bottom: 0;
+            bottom: 60px;
             left: 0;
             width: 100%;
         }
