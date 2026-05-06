@@ -104,8 +104,8 @@
         @media (max-width: 768px) {
             .page-slot.left, .book-spine { display: none !important; }
             .page-slot.right { width: 95vw; border-radius: 8px; }
-            #svg-right { padding-right: 10px; margin-top: -15px;width:100%; height:100%; display:block; }
-            #svg-left { padding-right: 10px; margin-top: -15px;width:100%; height:100%; display:block; }
+            #svg-right { padding-left: 10px; margin-top: -15px;width:100%; height:100%; display:block; }
+            #svg-left { padding-left: 10px; margin-top: -15px;width:100%; height:100%; display:block; }
             .navbar {
                 position: absolute;
                 bottom: 50px;
