@@ -95,15 +95,15 @@
         }
 
         /* طلبك الخاص بالهوامش */
-        #svg-right { padding: 50px; width:100%; height:80%; display:block; }
-        #svg-left { padding: 50px; width:100%; height:80%; display:block; }
+        #svg-right { padding: 50px; width:100%; height:100%; display:block; }
+        #svg-left { padding: 50px; width:100%; height:100%; display:block; }
 
         .book-spine { width:4px; height:100%; background:var(--spine-bg); z-index:10; }
 
         /* ─── Responsive (Mobile) ─── */
         @media (max-width: 768px) {
             .page-slot.left, .book-spine { display: none !important; }
-            .page-slot.right { width: 95vw; border-radius: 8px; }
+            /*.page-slot.right { width: 95vw; border-radius: 8px; }*/
         }
         @media (min-width: 760px) {
             #svg-right { padding:  90px}
