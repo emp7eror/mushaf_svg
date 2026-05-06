@@ -123,6 +123,10 @@
         .navbar {
             height:64px; display:flex; align-items:center; justify-content:center; gap:10px;
             border-top:1px solid var(--border); background:var(--bar-bg); flex-shrink:0;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
         }
         .nav-btn {
             width:38px; height:38px; display:flex; align-items:center; justify-content:center;
