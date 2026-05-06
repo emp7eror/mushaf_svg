@@ -103,7 +103,7 @@
         /* ─── Responsive (Mobile) ─── */
         @media (max-width: 768px) {
             .page-slot.left, .book-spine { display: none !important; }
-            /*.page-slot.right { width: 95vw; border-radius: 8px; }*/
+            .page-slot.right { width: 85vw; border-radius: 8px; }
         }
         @media (min-width: 760px) {
             #svg-right { padding:  90px}
