@@ -106,6 +106,12 @@
             .page-slot.right { width: 95vw; border-radius: 8px; }
             #svg-right { padding: 5px; margin-top: -15px;width:100%; height:100%; display:block; }
             #svg-left { padding: 5px; margin-top: -15px;width:100%; height:100%; display:block; }
+            .navbar {
+                position: absolute;
+                bottom: 50px;
+                left: 0;
+                width: 100%;
+            }
         }
         @media (min-width: 760px) {
             #svg-right { padding:  90px}
@@ -126,9 +132,6 @@
             height:64px; display:flex; align-items:center; justify-content:center; gap:10px;
             border-top:1px solid var(--border); background:var(--bar-bg); flex-shrink:0;
             position: absolute;
-            bottom: 20px;
-            left: 0;
-            width: 100%;
         }
         .nav-btn {
             width:38px; height:38px; display:flex; align-items:center; justify-content:center;
