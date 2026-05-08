@@ -124,12 +124,12 @@
             display: none;
         }
         .mobile-nav-btn {
-            width: 50px;
+            width: 25px;
             height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(18,16,10,0.9);
+            background: rgba(18, 16, 10, 0.25);
             backdrop-filter: blur(10px);
             border: none;
             color: var(--text-dim);
