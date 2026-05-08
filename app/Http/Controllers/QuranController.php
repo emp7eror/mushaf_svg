@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class QuranController extends Controller
 {
@@ -91,15 +90,24 @@ class QuranController extends Controller
 
         $page    = max(1, min(604, $page));
         $pageNum = str_pad($page, 3, '0', STR_PAD_LEFT);
+        $svgPath = public_path("mushafs/{$mushaf}/svg/{$pageNum}.svg");
 
+        // ── Brotli: only serve to browsers that truly support it.
+        // Safari (desktop & iOS) advertises "br" in Accept-Encoding but
+        // cannot decode Brotli-compressed SVG served via <object> tags —
+        // it throws "encoding error". We detect Safari by User-Agent and
+        // fall back to plain SVG for it.
         $acceptEncoding = $request->header('Accept-Encoding', '');
-        $brotliPath     = public_path("mushafs/{$mushaf}/svg-br/{$pageNum}.svg.br");
-        $svgPath        = public_path("mushafs/{$mushaf}/svg/{$pageNum}.svg");
+        $userAgent      = $request->header('User-Agent', '');
+        $isSafari       = $this->isSafari($userAgent);
 
-        if (str_contains($acceptEncoding, 'br') && file_exists($brotliPath)) {
+        $brotliPath = public_path("mushafs/{$mushaf}/svg-br/{$pageNum}.svg.br");
+
+        if (!$isSafari && str_contains($acceptEncoding, 'br') && file_exists($brotliPath)) {
             return response(file_get_contents($brotliPath))
                 ->header('Content-Type', 'image/svg+xml')
                 ->header('Content-Encoding', 'br')
+                ->header('Vary', 'Accept-Encoding')
                 ->header('Cache-Control', 'public, max-age=31536000');
         }
 
@@ -109,9 +117,9 @@ class QuranController extends Controller
                 ->header('Cache-Control', 'public, max-age=31536000');
         }
 
-        // Return a placeholder SVG if file doesn't exist yet
-        $placeholder = $this->generatePlaceholderSvg($mushaf, $page);
-        return response($placeholder)->header('Content-Type', 'image/svg+xml');
+        // Placeholder when no SVG files are placed yet
+        return response($this->generatePlaceholderSvg($mushaf, $page))
+            ->header('Content-Type', 'image/svg+xml');
     }
 
     public function serveJson(string $mushaf, int $page)
@@ -131,6 +139,39 @@ class QuranController extends Controller
         }
 
         return response()->json(['page' => $page, 'mushaf_id' => $mushaf, 'polygons' => []]);
+    }
+
+    /**
+     * Detect Safari (desktop or iOS).
+     *
+     * Safari's UA contains "Safari" but NOT "Chrome" or "Chromium"
+     * (Chrome on macOS also contains "Safari" in its UA, so we must
+     * exclude Chrome/Chromium explicitly).
+     * iOS browsers (even Chrome/Firefox on iOS) use WebKit and behave
+     * like Safari for this issue, so we also detect "iPhone"/"iPad".
+     */
+    private function isSafari(string $userAgent): bool
+    {
+        $ua = strtolower($userAgent);
+
+        // iOS devices — all browsers on iOS use WebKit / same Brotli limitation
+        if (str_contains($ua, 'iphone') || str_contains($ua, 'ipad') || str_contains($ua, 'ipod')) {
+            return true;
+        }
+
+        // Desktop Safari: has "safari" but NOT "chrome" or "chromium" or "edg"
+        if (
+            str_contains($ua, 'safari') &&
+            !str_contains($ua, 'chrome') &&
+            !str_contains($ua, 'chromium') &&
+            !str_contains($ua, 'edg') &&
+            !str_contains($ua, 'opr') &&
+            !str_contains($ua, 'opera')
+        ) {
+            return true;
+        }
+
+        return false;
     }
 
     private function generatePlaceholderSvg(string $mushaf, int $page): string

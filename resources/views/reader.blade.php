@@ -83,10 +83,19 @@
         .switcher-item.current { color:var(--accent); background:rgba(201,168,76,0.08); }
 
         /* ─── Reader & Book ─── */
-        .reader { flex:1; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+        .reader {
+            flex:1;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            position:relative;
+            overflow:hidden;
+        }
         .book-wrap {
             display:flex; align-items:center; justify-content:center;
             height:calc(100vh - 120px); filter:drop-shadow(0 30px 80px var(--shadow));
+            position: relative;
+            width: 100%;
         }
 
         .page-slot {
@@ -95,36 +104,90 @@
         }
 
         /* طلبك الخاص بالهوامش */
-        #svg-right { padding: 50px; width:100%; height:100%; display:block; }
-        #svg-left { padding: 50px; width:100%; height:100%; display:block; }
+        #svg-right, #svg-left {
+            width:100%;
+            height:100%;
+            display:block;
+        }
 
         .book-spine { width:4px; height:100%; background:var(--spine-bg); z-index:10; }
+
+        /* ─── Mobile Navigation Buttons ─── */
+        .mobile-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 100%;
+            height: 80px;
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+        .mobile-nav-btn {
+            width: 50px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(18,16,10,0.9);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: var(--text-dim);
+            font-size: 24px;
+            cursor: pointer;
+            transition: 0.2s;
+            pointer-events: all;
+        }
+        .mobile-nav-btn:hover {
+            background: rgba(201,168,76,0.15);
+            color: var(--gold);
+        }
+        .mobile-nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .mobile-nav-left { position: absolute; left: 10px; border-radius: 0 40px 40px 0; }
+        .mobile-nav-right { position: absolute; right: 10px; border-radius: 40px 0 0 40px; }
 
         /* ─── Responsive (Mobile) ─── */
         @media (max-width: 768px) {
             .page-slot.left, .book-spine { display: none !important; }
-            .page-slot.right { width: 95vw; border-radius: 8px; }
-            #svg-right { padding-left: 8px; margin-top: -15px;width:100%; height:100%; display:block; }
-            #svg-left { padding-left: 8px; margin-top: -15px;width:100%; height:100%; display:block; }
+            .page-slot.right {
+                width: 95vw;
+                height: 85vh;
+                border-radius: 8px;
+                margin: 0 auto;
+            }
+            #svg-right {
+                padding: 8% 5% 8% 8%;
+                width:100%;
+                height:100%;
+            }
+            #svg-left {
+                padding: 8% 5% 8% 8%;
+                width:100%;
+                height:100%;
+            }
+            .mobile-nav { display: block; }
+
             .navbar {
-                position: absolute;
-                bottom: 50px;
-                left: 0;
-                width: 100%;
+                display: none;
             }
         }
-        @media (min-width: 760px) {
-            #svg-right { padding:  90px}
-            #svg-left { padding:  90px }
 
-
+        @media (min-width: 769px) {
+            #svg-right { padding: 50px; }
+            #svg-left { padding: 50px; }
         }
-        /* ─── Tooltip & Navbar ─── */
+
+        /* ─── Tooltip ─── */
         #ayah-tooltip {
-            position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+            position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
             background:var(--bg2); border:1px solid var(--accent); border-radius:4px;
             padding:8px 18px; font-family:'Amiri',serif; font-size:14px; color:var(--text);
             z-index:50; opacity:0; transition:0.3s; pointer-events:none;
+            max-width: 90vw;
+            text-align: center;
         }
         #ayah-tooltip.show { opacity:1; }
 
@@ -139,7 +202,11 @@
         }
         .nav-btn:disabled { opacity:0.2; }
 
-        .page-input { width:56px; height:36px; background:var(--input-bg); border:1px solid var(--border); color:var(--text); text-align:center; outline:none; }
+        .page-input {
+            width:56px; height:36px; background:var(--input-bg);
+            border:1px solid var(--border); color:var(--text);
+            text-align:center; outline:none;
+        }
 
         .zoom-overlay {
             position:fixed; inset:0; background:rgba(8,6,4,0.93); z-index:200;
@@ -192,6 +259,16 @@
 
     <!-- READER -->
     <div class="reader">
+        <!-- Mobile Navigation Buttons -->
+        <div class="mobile-nav">
+            <button class="mobile-nav-btn mobile-nav-left" id="mobile-next" onclick="nextSpread()">
+                ◀
+            </button>
+            <button class="mobile-nav-btn mobile-nav-right" id="mobile-prev"  onclick="prevSpread()">
+                ▶
+            </button>
+        </div>
+
         <div class="book-wrap" id="book-container">
             <div class="page-slot left" id="page-left-container">
                 <object id="svg-left" type="image/svg+xml" data=""></object>
@@ -203,7 +280,7 @@
         </div>
     </div>
 
-    <!-- BOTTOM NAV -->
+    <!-- BOTTOM NAV (Desktop Only) -->
     <div class="navbar">
         <button class="nav-btn" onclick="goToPage(604)">«</button>
         <button class="nav-btn" id="btn-next" onclick="nextSpread()">◀</button>
@@ -235,6 +312,18 @@
 
     function isMobile() { return window.innerWidth <= 768; }
 
+    function updateMobileButtons() {
+        const prevBtn = document.getElementById('mobile-prev');
+        const nextBtn = document.getElementById('mobile-next');
+        const desktopPrev = document.getElementById('btn-prev');
+        const desktopNext = document.getElementById('btn-next');
+
+        if (prevBtn) prevBtn.disabled = currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = currentPage >= TOTAL;
+        if (desktopPrev) desktopPrev.disabled = currentPage <= 1;
+        if (desktopNext) desktopNext.disabled = currentPage >= TOTAL;
+    }
+
     function getSpread(p) {
         if (isMobile()) return { right: p, left: null };
         if (p === 1) return { right: 1, left: null };
@@ -257,6 +346,8 @@
         const lang = document.documentElement.getAttribute('data-lang');
         document.getElementById('page-display').innerHTML = lang === 'ar' ? `الصفحة ${currentPage}` : `Page ${currentPage}`;
         document.getElementById('page-input').value = currentPage;
+
+        updateMobileButtons();
     }
 
     function loadSlot(id, p) {
@@ -291,30 +382,77 @@
         tooltipTimer = setTimeout(() => tt.classList.remove('show'), 3000);
     }
 
-    function nextSpread() { renderSpread(currentPage + (isMobile() ? 1 : (currentPage === 1 ? 1 : 2))); }
-    function prevSpread() { renderSpread(currentPage - (isMobile() ? 1 : (currentPage <= 2 ? 1 : 2))); }
+    function nextSpread() {
+        if (currentPage < TOTAL) {
+            renderSpread(currentPage + (isMobile() ? 1 : (currentPage === 1 ? 1 : 2)));
+        }
+    }
+
+    function prevSpread() {
+        if (currentPage > 1) {
+            renderSpread(currentPage - (isMobile() ? 1 : (currentPage <= 2 ? 1 : 2)));
+        }
+    }
+
     function goToPage(p) { renderSpread(parseInt(p)); }
 
     function zoomPage() {
         document.getElementById('zoom-svg').data = `/api/mushaf/${MUSHAF}/page/${currentPage}`;
         document.getElementById('zoom-overlay').classList.add('open');
     }
+
     function closeZoom() { document.getElementById('zoom-overlay').classList.remove('open'); }
 
     function toggleTheme() {
         const t = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', t);
     }
+
     function toggleLang() {
         const l = document.documentElement.getAttribute('data-lang') === 'ar' ? 'en' : 'ar';
         document.documentElement.setAttribute('data-lang', l);
         document.documentElement.dir = l === 'ar' ? 'rtl' : 'ltr';
         renderSpread(currentPage);
     }
+
     function toggleSwitcher() { document.getElementById('switcher-dropdown').classList.toggle('open'); }
+
+    // Touch/swipe support for mobile
+    let startX = 0;
+    let startY = 0;
+
+    document.querySelector('.reader').addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    document.querySelector('.reader').addEventListener('touchend', (e) => {
+        if (!startX || !startY) return;
+
+        let endX = e.changedTouches[0].clientX;
+        let endY = e.changedTouches[0].clientY;
+
+        let diffX = startX - endX;
+        let diffY = startY - endY;
+
+        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 50) {
+            if (diffX > 0) {
+                nextSpread(); // Swipe left -> next page
+            } else {
+                prevSpread(); // Swipe right -> prev page
+            }
+        }
+    });
 
     window.addEventListener('resize', () => renderSpread(currentPage));
     document.getElementById('page-input').onchange = (e) => goToPage(e.target.value);
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.mushaf-switcher')) {
+            document.getElementById('switcher-dropdown').classList.remove('open');
+        }
+    });
 
     renderSpread(1);
 </script>
